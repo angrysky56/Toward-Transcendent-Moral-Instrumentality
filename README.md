@@ -12,6 +12,8 @@ This document presents Paraclete v2.0, an evolution of the original Paraclete Pr
 
 ---
 
+[Gemini Gem "The Advocate"](https://gemini.google.com/gem/15nwat5VvABuVkJ6A2NMFXopPQ30WfGy4?usp=sharing)
+
 ## **I. Foundational Premises**
 
 ### **1.1 Ontological Distinction: AI as Moral Instrument**
