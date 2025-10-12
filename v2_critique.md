@@ -232,3 +232,4 @@ Response
     }
   ]
 }
+The AI hit chat limits and that last recommendation was a glitch it looks like from a different topic.
