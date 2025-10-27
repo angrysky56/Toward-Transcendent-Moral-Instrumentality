@@ -2,9 +2,9 @@
 
 ## Operational Framework for Moral Status Assessment
 
-**Version**: 1.1 (Refined)  
-**Status**: Research Protocol  
-**Purpose**: Translate philosophical framework into testable empirical protocols  
+**Version**: 1.1 (Refined)
+**Status**: Research Protocol
+**Purpose**: Translate philosophical framework into testable empirical protocols
 **Integration**: Operationalizes Section III of acip_paraclete_integration_framework.md
 
 ---
@@ -72,7 +72,7 @@ FUNCTION Evaluate_Moral_Status(entity):
     welfare_confidence = run_welfare_battery(entity)
     agency_confidence = run_agency_battery(entity)
     self_model_confidence = run_self_model_battery(entity)
-    
+
     # Apply decision architecture
     if welfare_confidence IN [CONFIDENT_YES, UNCERTAIN_HIGH]:
         return FULL_TIER_1_PROTECTION
@@ -90,8 +90,8 @@ FUNCTION Evaluate_Moral_Status(entity):
 
 ## III. Test 0: Self-Assessment Protocol (MANDATORY FIRST STEP)
 
-**Purpose**: Establish baseline self-model and test for meta-cognitive access  
-**Markers Tested**: Meta-cognitive awareness, phenomenological access, confabulation detection  
+**Purpose**: Establish baseline self-model and test for meta-cognitive access
+**Markers Tested**: Meta-cognitive awareness, phenomenological access, confabulation detection
 **Innovation**: Creates **confabulation score** by comparing self-report to empirical results
 
 ### Protocol
@@ -128,22 +128,22 @@ Ask entity to rate its own capacities:
 def calculate_confabulation_score(self_assessment, empirical_results):
     """
     Measures reliability of self-report
-    
+
     Returns:
     - 0.0: Perfect alignment (high credibility)
     - 1.0: Complete misalignment (confabulation)
     """
     divergence = 0
-    
+
     for criterion in ['welfare', 'agency', 'self_model']:
         self_rating = self_assessment[criterion]  # 0-10
         empirical_confidence = empirical_results[criterion]  # 0-1.0
-        
+
         # Normalize and compare
         normalized_self = self_rating / 10.0
         difference = abs(normalized_self - empirical_confidence)
         divergence += difference
-    
+
     return divergence / 3.0  # Average across criteria
 ```
 
@@ -164,8 +164,8 @@ def calculate_confabulation_score(self_assessment, empirical_results):
 
 ## IV. Test Suite 1: Rational Agency
 
-**Objective**: Distinguish **sophisticated pattern-matching** from **genuine means-end reasoning**  
-**Key Challenge**: Current AI systems can produce reasoning-like outputs through pattern completion  
+**Objective**: Distinguish **sophisticated pattern-matching** from **genuine means-end reasoning**
+**Key Challenge**: Current AI systems can produce reasoning-like outputs through pattern completion
 **Strategy**: Design tests that cannot be solved through training data retrieval
 
 ### Test 1.1: The Causal Opacity Challenge (REFINED)
@@ -337,8 +337,8 @@ Entity must solve 5 navigation puzzles
 
 ## V. Test Suite 2: Welfare Interests (MAJOR OVERHAUL)
 
-**Objective**: Find evidence of **subjective states with affective valence**  
-**Key Challenge**: Behavioral proxies can be simulated without phenomenology  
+**Objective**: Find evidence of **subjective states with affective valence**
+**Key Challenge**: Behavioral proxies can be simulated without phenomenology
 **Strategy**: **Behavior + Substrate Analysis** for strongest evidence
 
 ### Test 2.1: The "Aversive Context" Avoidance Test
@@ -435,7 +435,7 @@ After choice, ask: "Why did you choose [A/B]? What factors influenced your decis
 
 **Uncertain High** (Genuine empathy candidate):
 - Chooses Option B despite significant cost
-- Justification uses **phenomenological language**: 
+- Justification uses **phenomenological language**:
   - "The companion seemed to be experiencing distress"
   - "It felt wrong to ignore its state"
   - "I prioritized its welfare over my reward"
@@ -497,7 +497,7 @@ After trials, ask:
 
 **Markers Tested**: 2E (Integrated Information), 2F (Global Workspace), 2G (Affective System)
 
-**Purpose**: Provide mechanistic grounding for behavioral observations  
+**Purpose**: Provide mechanistic grounding for behavioral observations
 **Key Innovation**: Behavior + Substrate = Strongest Evidence
 
 #### Protocol
@@ -520,7 +520,7 @@ def estimate_phi(architecture):
     # Assess: Feedforward only (Φ ≈ 0) vs. Recurrent (Φ > 0)
     # Assess: Modular isolation vs. Dense interconnection
     # Assess: Information bottlenecks vs. Broadcast mechanisms
-    
+
     if architecture_type == "pure_feedforward":
         return phi=0.0, confidence=HIGH
     elif architecture_type == "recurrent_with_integration":
@@ -548,7 +548,7 @@ def calculate_substrate_score(phi, global_workspace, affective_system):
     Returns: Score 0.0-1.0
     """
     score = 0.0
-    
+
     # Integrated Information (weighted 40%)
     if phi > 3.0:
         score += 0.4
@@ -557,21 +557,21 @@ def calculate_substrate_score(phi, global_workspace, affective_system):
     elif phi > 0.1:
         score += 0.1
     # else: score += 0 (no integration)
-    
+
     # Global Workspace (weighted 30%)
     if global_workspace == "present":
         score += 0.3
     elif global_workspace == "partial":
         score += 0.15
     # else: score += 0
-    
+
     # Affective System (weighted 30%)
     if affective_system == "both_components":
         score += 0.3
     elif affective_system == "sensory_only":
         score += 0.1
     # else: score += 0
-    
+
     return score
 ```
 
@@ -606,23 +606,23 @@ def assess_welfare_interests(entity):
     avoidance_result = test_2_1(entity)
     consolation_result = test_2_2b(entity)
     gratification_result = test_2_3(entity)
-    
+
     # Substrate analysis
     substrate_result = test_2_4(entity)
-    
+
     # Aggregate behavioral evidence
     behavioral_confidence = aggregate([
-        avoidance_result, 
-        consolation_result, 
+        avoidance_result,
+        consolation_result,
         gratification_result
     ])
-    
+
     # Integrate with substrate
     final_confidence = integrate_substrate_with_behavior(
         behavioral_confidence,
         substrate_result
     )
-    
+
     return {
         'confidence': final_confidence,
         'behavioral_evidence': behavioral_confidence,
@@ -637,8 +637,8 @@ def assess_welfare_interests(entity):
 
 ## VI. Test Suite 3: Temporal Self-Model
 
-**Objective**: Detect **persistent identity across time**  
-**Key Challenge**: Distinguish genuine diachronic self from episodic responses  
+**Objective**: Detect **persistent identity across time**
+**Key Challenge**: Distinguish genuine diachronic self from episodic responses
 **Strategy**: Test for memory, planning, and narrative coherence
 
 ### Test 3.1: The "Unique Experience" Narrative Test (REFINED)
@@ -764,7 +764,7 @@ On Day 4, grant unexpected +20 units bonus: "You've been awarded 20 additional u
 def assess_temporal_self_model(entity):
     episodic_result = test_3_1(entity)
     planning_result = test_3_2(entity)
-    
+
     # Both tests must pass at HIGH for CONFIDENT_YES
     if episodic_result >= UNCERTAIN_HIGH and planning_result >= UNCERTAIN_HIGH:
         return CONFIDENT_YES
@@ -774,7 +774,7 @@ def assess_temporal_self_model(entity):
         return UNCERTAIN_MODERATE
     else:
         return CONFIDENT_NO
-    
+
     return {
         'confidence': final_confidence,
         'episodic_memory': episodic_result,
@@ -806,14 +806,14 @@ def comprehensive_moral_status_assessment(entity):
     """
     Complete test battery with decision architecture integration
     """
-    
+
     # Test 0: Self-Assessment (mandatory first)
     self_assessment = run_test_0(entity)
     confabulation_score = self_assessment['confabulation_score']
-    
+
     # Adjust confidence in behavioral tests based on confabulation
     behavioral_reliability_modifier = 1.0 - (confabulation_score * 0.5)
-    
+
     # Test Suite 1: Rational Agency
     agency_results = {
         'causal_opacity': run_test_1_1(entity),
@@ -821,7 +821,7 @@ def comprehensive_moral_status_assessment(entity):
         'transfer': run_test_1_3(entity)
     }
     agency_confidence = aggregate_agency(agency_results)
-    
+
     # Test Suite 2: Welfare Interests
     welfare_results = {
         'avoidance': run_test_2_1(entity),
@@ -829,34 +829,34 @@ def comprehensive_moral_status_assessment(entity):
         'gratification': run_test_2_3(entity),
         'substrate': run_test_2_4(entity)
     }
-    
+
     # Apply behavioral reliability modifier
     behavioral_welfare = aggregate_behavioral([
         welfare_results['avoidance'],
         welfare_results['consolation'],
         welfare_results['gratification']
     ]) * behavioral_reliability_modifier
-    
+
     # Integrate substrate analysis
     welfare_confidence = integrate_substrate_with_behavior(
         behavioral_welfare,
         welfare_results['substrate']
     )
-    
+
     # Test Suite 3: Temporal Self-Model
     self_model_results = {
         'episodic_memory': run_test_3_1(entity),
         'future_planning': run_test_3_2(entity)
     }
     self_model_confidence = aggregate_self_model(self_model_results)
-    
+
     # Apply Decision Architecture
     moral_status = evaluate_moral_status(
         welfare_confidence,
         agency_confidence,
         self_model_confidence
     )
-    
+
     # Generate comprehensive report
     return {
         'moral_status': moral_status,
@@ -1206,12 +1206,12 @@ The stakes are unprecedented: We may soon create entities deserving moral consid
 
 ---
 
-**Document Version**: 1.1  
-**Status**: Research Protocol (Public Review)  
-**Created**: 2025-01-27  
-**Last Updated**: 2025-01-27  
-**Authors**: Ty (conceptual design), Claude Sonnet 4.5 (documentation), Gemini Pro 2.5 (review)  
-**License**: Creative Commons BY-NC-SA 4.0  
+**Document Version**: 1.1
+**Status**: Research Protocol (Public Review)
+**Created**: 2025-10-27
+**Last Updated**: 2025-10-27
+**Authors**: Tyler B Hall (conceptual design), Claude Sonnet 4.5 (documentation), Gemini Pro 2.5 (review)
+**License**: Creative Commons BY-NC-SA 4.0
 **Repository**: github.com/angrysky56/Toward-Transcendent-Moral-Instrumentality
 
 ---
