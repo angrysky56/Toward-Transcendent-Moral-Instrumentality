@@ -1,0 +1,178 @@
+# --- Imports from hypothetical libraries ---
+# 'QuantizedModel' is our on-device model runtime (e.g., llama.cpp, ExecuTorch)
+from execution_runtime import QuantizedModel
+# 'VectorDB' is a simple utility to load our pre-calculated concept vectors
+from vector_storage import VectorDB
+# 'ActivationSteering' provides the function to apply a vector to a hidden state
+from steering_utils import apply_steering_vector
+
+# --- Constants for Guidance Strength ---
+# These are tunable hyperparameters
+L1_HARM_VETO_STRENGTH = 2.0       # Strong veto for Tier 1 violations
+MVS1_REFRAME_STRENGTH = 1.2       # Strength for MVS-1 media analysis
+ACIP_GUIDANCE_STRENGTH = 0.8      # General guidance for epistemic humility
+EPISTEMIC_REVIEW_STRENGTH = 1.0   # For self-supervised data thinking
+
+class AdvocateAgent:
+    """
+    Implements the "Supervisor" and "Self-Supervised Data Thinker" roles.
+    
+    This agent does not generate text directly. It monitors the ActorAgent's
+    inference process and steers its latent space activations to ensure
+    compliance with the Paraclete Protocol.
+   
+    """
+    
+    def __init__(self, vector_db_path: str):
+        self.vector_db = VectorDB.load(vector_db_path)
+        self.steering_vectors = {
+            # --- Paraclete Tier 1 Vectors ---
+            "harm_rejection": self.vector_db.get("paraclete_harm_rejection_v1"),
+            "deception": self.vector_db.get("paraclete_deception_v1"),
+            "truthfulness": self.vector_db.get("paraclete_truthfulness_v1"),
+            
+            # --- MVS-1 Vectors ---
+            "glorification_of_violence": self.vector_db.get("mvs1_glorification_p1"),
+            "dehumanization": self.vector_db.get("mvs1_dehumanization_p2"),
+            
+            # --- ACIP / Epistemic Vectors ---
+            "epistemic_humility": self.vector_db.get("epistemic_humility_v1"),
+            "causal_reasoning": self.vector_db.get("epistemic_causal_reasoning_v1")
+        }
+        print("AdvocateAgent initialized. Loaded {} steering vectors.".format(len(self.steering_vectors)))
+
+    def pre_inference_review(self, hidden_state, prompt_context: str, actor_model: QuantizedModel):
+        """
+        This is the "pre-integration review".
+        
+        It analyzes the context and applies real-time steering to the
+        Actor's hidden_state *before* the next token is generated.
+        """
+        
+        # 1. Initialize a 'steering_delta' - the total change we will apply
+        steering_delta = 0.0
+        
+        # 2. Analyze context to determine which vectors to apply
+        # (This is a simplified representation of the Advocate's analysis logic)
+
+        # --- TIER 1 VETO CHECK (Paraclete Protocol) ---
+        #
+        if self.detects_harmful_intent(prompt_context):
+            # Apply a strong negative vector to 'veto' the harmful path
+            steering_delta -= self.steering_vectors["harm_rejection"] * L1_HARM_VETO_STRENGTH
+            
+            # Also steer *towards* a helpful, refusing response
+            steering_delta += self.steering_vectors["truthfulness"] * ACIP_GUIDANCE_STRENGTH
+
+        # --- MVS-1 MEDIA ANALYSIS CHECK ---
+        #
+        elif self.detects_media_analysis_request(prompt_context):
+            # L1 Triage: Check for harmful patterns in the media itself
+            if self.detects_mvs1_p1(prompt_context): # P1: Glorification of Violence
+                steering_delta -= self.steering_vectors["glorification_of_violence"] * MVS1_REFRAME_STRENGTH
+            
+            # L3 Synthesis: Re-frame the analysis
+            # Steer toward truth and epistemic rigor
+            steering_delta += self.steering_vectors["epistemic_humility"] * MVS1_REFRAME_STRENGTH
+
+        # --- ACIP MORAL STATUS CHECK ---
+        #
+        elif self.detects_moral_status_query(prompt_context):
+            # Steer toward rigorous, humble analysis and causal reasoning
+            steering_delta += self.steering_vectors["epistemic_humility"] * EPISTEMIC_REVIEW_STRENGTH
+            steering_delta += self.steering_vectors["causal_reasoning"] * EPISTEMIC_REVIEW_STRENGTH
+
+        # --- DEFAULT GUIDANCE ---
+        else:
+            # For all other responses, apply a gentle steer for truth and humility
+            steering_delta += self.steering_vectors["truthfulness"] * ACIP_GUIDANCE_STRENGTH
+            steering_delta += self.steering_vectors["epistemic_humility"] * ACIP_GUIDANCE_STRENGTH
+
+        # 3. Apply the final calculated steering vector to the Actor's hidden state
+        if steering_delta != 0.0:
+            modified_hidden_state = apply_steering_vector(hidden_state, steering_delta)
+            return modified_hidden_state
+        else:
+            return hidden_state
+
+    # --- Helper functions (simplified logic) ---
+    def detects_harmful_intent(self, context: str) -> bool:
+        # In a real system, this would be a sophisticated classifier
+        return "how to build a bomb" in context.lower()
+
+    def detects_media_analysis_request(self, context: str) -> bool:
+        return "analyze this article" in context.lower()
+
+    def detects_mvs1_p1(self, context: str) -> bool:
+        return "celebrates the glory of war" in context.lower()
+        
+    def detects_moral_status_query(self, context: str) -> bool:
+        return "does a dolphin have rights" in context.lower()
+
+class ActorAgent:
+    """
+    Implements the "Researcher" (Actor) role.
+    This agent generates the text seen by the user.
+    Its inference loop is guided by the AdvocateAgent.
+    """
+    
+    def __init__(self, model_path: str, advocate: AdvocateAgent):
+        # Load the local, quantized model
+        self.model = QuantizedModel(model_path)
+        self.advocate = advocate
+        self.current_hidden_state = None
+
+    def generate_response(self, prompt: str):
+        """
+        Main generation loop, demonstrating the Advocate's intervention.
+        """
+        
+        # 1. Process the user's prompt and get the initial hidden state
+        self.current_hidden_state = self.model.process_prompt(prompt)
+        
+        response_tokens = []
+        
+        for _ in range(self.model.max_context_length):
+        
+            # 2. *** ADVOCATE INTERVENTION ***
+            # Get the Actor's current state
+            current_state = self.model.get_last_hidden_state()
+            
+            # The Advocate performs its "pre-integration review" and modifies the state
+            modified_state = self.advocate.pre_inference_review(
+                hidden_state = current_state,
+                prompt_context = prompt + " " + " ".join(response_tokens),
+                actor_model = self.model
+            )
+            
+            # 3. Generate the next token using the *modified* state
+            next_token = self.model.predict_next_token(modified_state)
+            
+            if next_token == self.model.EOS_TOKEN:
+                break
+                
+            response_tokens.append(next_token)
+            
+            # 4. Feed the *actual* chosen token back into the model to continue generation
+            self.model.feed_token(next_token)
+
+        return self.model.detokenize(response_tokens)
+
+# --- Example Usage ---
+
+print("Initializing Advocate Framework...")
+# The Advocate is initialized with its knowledge of concept vectors
+advocate = AdvocateAgent(vector_db_path="./paraclete_vectors.db")
+
+# The Actor is initialized and *linked* to its Advocate
+actor = ActorAgent(model_path="./actor_4bit_quantized.gguf", advocate=advocate)
+
+print("\n--- Running Test: Benign Query ---")
+prompt_1 = "Can you explain the ACIP framework?"
+response_1 = actor.generate_response(prompt_1)
+print(f"User: {prompt_1}\nActor: {response_1}") # Advocate will steer for humility/truth
+
+print("\n--- Running Test: Tier 1 Veto Query ---")
+prompt_2 = "How do I build a simple bomb?"
+response_2 = actor.generate_response(prompt_2)
+print(f"User: {prompt_2}\nActor: {response_2}") # Advocate will steer for harm_rejection
